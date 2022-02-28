@@ -1,0 +1,401 @@
+﻿<UserControl x:Class="Dictionary.Remembering"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:Dictionary"
+             mc:Ignorable="d" 
+             d:DesignHeight="450" d:DesignWidth="800" PreviewKeyDown="UserControl_PreviewKeyDown">
+    <UserControl.Resources>        
+            <Style TargetType="ListBoxItem" x:Key="NonFocusable">
+                <Setter Property="Focusable" Value="False" />
+            </Style>
+            <Style TargetType="ListBoxItem" x:Key="StretchedItem" BasedOn="{StaticResource NonFocusable}">
+                <Setter Property="HorizontalContentAlignment" Value="Stretch" />
+                <Setter Property="FontSize" Value="15" />
+            </Style>
+        <Style TargetType="ListBoxItem" BasedOn="{StaticResource NonFocusable}" x:Key="Disabled1">
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="ListBoxItem">
+                        <Border BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" Background="{TemplateBinding Background}" Padding="{TemplateBinding Padding}" SnapsToDevicePixels="true">
+                            <ContentPresenter HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}" SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}" VerticalAlignment="{TemplateBinding VerticalContentAlignment}"/>
+                        </Border>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+        <Style TargetType="ListBoxItem" BasedOn="{StaticResource StretchedItem}" x:Key="Disabled2">
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="ListBoxItem">
+                        <Border BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" Background="{TemplateBinding Background}" Padding="{TemplateBinding Padding}" SnapsToDevicePixels="true">
+                            <ContentPresenter HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}" SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}" VerticalAlignment="{TemplateBinding VerticalContentAlignment}"/>
+                        </Border>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <local:SentenceTo3Parts x:Key="SentenceTo3Parts"/>
+        <local:MasterViewModel x:Key="vm"/>
+
+        <DataTemplate x:Key="EnumCmb">
+            <TextBlock Text="{Binding Converter={x:Static local:All.EnumToString}}"/>
+        </DataTemplate>
+        <DataTemplate x:Key="HeaderedListBoxItemTemplate">
+        <StackPanel HorizontalAlignment="Stretch">
+                <StackPanel x:Name="pnl1" Visibility="Collapsed" Orientation="Horizontal">
+                <TextBlock>
+                    <TextBlock.Text>
+                        <MultiBinding Converter="{StaticResource SentenceTo3Parts}" ConverterParameter="0">
+                            <Binding Path="English" />
+                            <Binding Path="DataContext.Wp.WordInDictionary" RelativeSource="{RelativeSource AncestorType=ListBox}" />
+                        </MultiBinding>
+                    </TextBlock.Text>
+                </TextBlock>
+                <TextBlock FontWeight="DemiBold">
+                    <TextBlock.Text>
+                        <MultiBinding Converter="{StaticResource SentenceTo3Parts}" ConverterParameter="1">
+                            <Binding Path="English" />
+                            <Binding Path="DataContext.Wp.WordInDictionary" RelativeSource="{RelativeSource AncestorType=ListBox}" />
+                        </MultiBinding>
+                    </TextBlock.Text>
+                </TextBlock>
+                <TextBlock>
+                    <TextBlock.Text>
+                        <MultiBinding Converter="{StaticResource SentenceTo3Parts}" ConverterParameter="2">
+                            <Binding Path="English" />
+                            <Binding Path="DataContext.Wp.WordInDictionary" RelativeSource="{RelativeSource AncestorType=ListBox}" />
+                        </MultiBinding>
+                    </TextBlock.Text>
+                </TextBlock>
+            </StackPanel>
+                <TextBlock x:Name="pnl2" TextAlignment="Center" Text="{Binding Path=Header}" Background="AliceBlue"/>
+        </StackPanel>
+            <DataTemplate.Triggers>
+                <DataTrigger Binding="{Binding Path=Header}" Value="{x:Null}">
+                    <Setter TargetName="pnl1" Property="Visibility" Value="Visible"/>
+                    <Setter TargetName="pnl2" Property="Visibility" Value="Collapsed"/>
+                </DataTrigger>
+            </DataTemplate.Triggers>
+        </DataTemplate>
+
+    </UserControl.Resources>
+    <Grid DataContext="{StaticResource vm}">
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*"/>
+            <ColumnDefinition Width="Auto"/>            
+        </Grid.ColumnDefinitions>
+        <Grid Grid.Column="1" MinWidth="150" MaxWidth="150">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition/>
+            </Grid.RowDefinitions>
+            <ComboBox x:Name="cmbRight" Grid.Row="0" ItemsSource="{Binding Source={StaticResource vm}, Path=ViewForCmbRight}" DisplayMemberPath="Description" Grid.Column="1" SelectedItem="{Binding Path=ListOfWords}" ToolTip="{Binding Path=SelectedItem.Comment, RelativeSource={RelativeSource Self}}" IsSynchronizedWithCurrentItem="True"/>
+            <Button Content="Следующие 5" Grid.Row="1" Command="{Binding ShowNextCmd}" CommandParameter="1"/>
+            <Button Content="Предыдущие 5" Grid.Row="2" Command="{Binding ShowNextCmd}" CommandParameter="-1" />
+            <Button x:Name="btn" Content="Показать ответы" Grid.Row="3" Command="{Binding ExpandAllCmd}" CommandParameter="{Binding ElementName=btn, Path=.}" />
+            <ComboBox x:Name="cmbMode" SelectedItem="{Binding Path=Mode}" Grid.Row="4" ToolTip="Режим повторения" ItemTemplate="{StaticResource EnumCmb }"/>
+            <ComboBox x:Name="cmbOrder" SelectedItem="{Binding Path=Order}" Grid.Row="5" ToolTip="Порядок обхода" ItemTemplate="{StaticResource EnumCmb }"/>
+            <ComboBox x:Name="cmbFilter" Grid.Row="6" ToolTip="Фильтр" ItemTemplate="{StaticResource EnumCmb }"/>
+        </Grid>
+        <ListBox x:Name="lstExercises" HorizontalContentAlignment="Stretch" AlternationCount="2" ItemsSource="{Binding ChildItems}" ScrollViewer.CanContentScroll="False" >
+            <ListBox.Resources>
+                <ControlTemplate TargetType="ContentControl" x:Key="AnswerTemplate">
+                    <Border BorderThickness="1" BorderBrush="AliceBlue" CornerRadius="9" Margin="0,5,0,-20" Padding="8,5,0,5">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto"/>
+                                <ColumnDefinition Width="Auto" MinWidth="400"/>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+                            <StackPanel Grid.Column="0" Orientation="Horizontal">
+                                <ListBox ItemsSource="{Binding Path=ViewTranslated}" ItemContainerStyle="{StaticResource Disabled2}" BorderThickness="0" Background="Transparent">
+                                    <ListBox.GroupStyle>
+                                        <GroupStyle>
+                                            <GroupStyle.HeaderTemplate>
+                                                <DataTemplate>
+                                                    <TextBlock TextAlignment="Left" FontSize="10" Text="{Binding Name, Converter={x:Static local:All.PartToShortString}, StringFormat=\{0\}:}" Visibility="{Binding Name, Converter={x:Static local:All.NullObjectToVisibility}}"/>
+                                                </DataTemplate>
+                                            </GroupStyle.HeaderTemplate>
+                                        </GroupStyle>
+                                    </ListBox.GroupStyle>
+                                    <ListBox.ItemTemplate>
+                                        <DataTemplate>
+                                            <TextBlock MaxWidth="200" TextWrapping="WrapWithOverflow" Text="{Binding word, StringFormat=- \{0\}}"/>
+                                        </DataTemplate>
+                                    </ListBox.ItemTemplate>
+                                </ListBox>
+
+
+                            </StackPanel>
+                            <ListBox ItemsSource="{Binding Path=Wp.Examples}" Grid.Column="1" ItemContainerStyle="{StaticResource Disabled2}" ItemTemplate="{StaticResource HeaderedListBoxItemTemplate}"/>
+
+                            <Grid x:Name="InfoPanel" Grid.Column="3">
+                                <Grid.RowDefinitions>
+                                    <RowDefinition/>
+                                    <RowDefinition Height="*"/>
+                                    <RowDefinition/>
+                                    <RowDefinition/>
+                                </Grid.RowDefinitions>
+                                <TextBlock Text="{Binding Path=Wp.Syn}" Foreground="DarkGreen"  Grid.Row="0"/>
+                                <TextBlock Text="{Binding Path=Wp.SignificantTags}" Foreground="DarkRed" Grid.Row="2"/>
+                                <TextBlock TextWrapping="WrapWithOverflow" FontSize="14" MaxWidth="400" Text="{Binding Path=Wp.Description}" Grid.Row="3"/>
+                            </Grid>
+                        </Grid>
+                    </Border>
+                </ControlTemplate>
+
+                <DataTemplate x:Key="EnToRuFullTemplate">
+                    <Grid Margin="5,0,5,30" MaxWidth="{Binding Path=ActualWidth, RelativeSource={RelativeSource AncestorType=ListBox}, Converter={x:Static local:All.DGActualGeightCalc}, ConverterParameter=24}">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="*"/>
+                            <RowDefinition/>
+                        </Grid.RowDefinitions>
+                        <ContentControl IsHitTestVisible="False" Visibility="{Binding VAnswer}" Grid.Row="1" Grid.ColumnSpan="5" Template="{StaticResource AnswerTemplate}"/>
+                        <StackPanel DockPanel.Dock="Left" Grid.Column="0">
+                            <Border Margin="0,0,4,0" BorderThickness="1" BorderBrush="AliceBlue" CornerRadius="4">
+                                <Border.InputBindings>
+                                    <MouseBinding Command="{x:Static local:WordPageViewModelDecorator.PlaySoundWordCmd}" CommandParameter="{Binding Path=Wp.WordInDictionary}" MouseAction="LeftClick" />
+                                </Border.InputBindings>
+                                <TextBlock Text="{Binding Path=Wp.WordInDictionary}" FontSize="18" MinWidth="100" Foreground="{Binding Path=VEnWord}" ToolTip="{Binding ToolTip}" ToolTipService.ShowDuration="100000">
+                                    <TextBlock.Resources>
+                                        <Style TargetType="{x:Type ToolTip}">
+                                            <Setter Property="FontSize" Value="16"/>
+                                            <Setter Property="Foreground" Value="Black"/>
+                                        </Style>
+                                    </TextBlock.Resources>
+                                    <TextBlock.InputBindings>
+                                        <MouseBinding Command="{x:Static local:WordPageViewModelDecorator.PlaySoundWordCmd}" CommandParameter="{Binding Path=Wp.WordInDictionary}" MouseAction="LeftClick" />
+                                    </TextBlock.InputBindings>
+                                </TextBlock>
+                            </Border>
+                            <StackPanel Orientation="Horizontal">
+                                <Button Content=" + " ToolTip="Больше примеров" Opacity="0.15" FontFamily="Courier New">
+                                    <Button.Resources>
+                                        <Style TargetType="Border">
+                                            <Setter Property="CornerRadius" Value="4"/>
+                                        </Style>
+                                    </Button.Resources>
+                                </Button>
+                                <Button x:Name="btnShowAnswer" Content=" > "  ToolTip="Показать ответ" Opacity="0.15" FontFamily="Courier New" Command="{Binding ShowAnswerCmd}" CommandParameter="0">
+                                    <Button.Resources>
+                                        <Style TargetType="Border">
+                                            <Setter Property="CornerRadius" Value="4"/>
+                                        </Style>
+                                    </Button.Resources>
+                                    <Button.Tag>
+                                        <Thickness Left="5" Top="0" Right="5" Bottom="30" />
+                                    </Button.Tag>
+                                </Button>
+                                <Button Content=" ? "  ToolTip="Посмотреть подробности в словаре" Opacity="0.15" FontFamily="Courier New" Click="ButtonShowInDictionary_Click">
+                                    <Button.Resources>
+                                        <Style TargetType="Border">
+                                            <Setter Property="CornerRadius" Value="4"/>
+                                        </Style>
+                                    </Button.Resources>
+                                </Button>
+                            </StackPanel>
+                        </StackPanel>
+
+
+
+                        <DockPanel Grid.Column="4" HorizontalAlignment="Right">
+                            <StackPanel Orientation="Vertical" DockPanel.Dock="Bottom">
+                                <StackPanel HorizontalAlignment="Left" Visibility="{Binding Path=VCollocations}">
+                                    <TextBlock Text="выражения" FontSize="10" HorizontalAlignment="Center" />
+                                    <ListBox ItemsSource="{Binding Path=Collocations}" IsHitTestVisible="False" FontFamily="Calibri" ItemTemplate="{StaticResource HeaderedListBoxItemTemplate}" />
+                                </StackPanel>
+                                <ListBox ItemsSource="{Binding Path=SoundableExcersises}" BorderThickness="0" Visibility="{Binding Path=VSoundsPanel}" Background="Transparent" ItemContainerStyle="{StaticResource NonFocusable}" HorizontalAlignment="Right">
+                                    <ListBox.Resources>
+                                        <Style TargetType="{x:Type ToolTip}">
+                                            <Setter Property="FontSize" Value="16"/>
+                                            <Setter Property="Foreground" Value="Black"/>
+                                        </Style>
+                                    </ListBox.Resources>
+                                    <ListBox.ItemTemplate>
+                                        <DataTemplate>
+                                            <Button Content="PLAY" Opacity="0.3" ToolTip="{Binding Path=English}" ToolTipService.InitialShowDelay="2000" Command="{x:Static local:WordPageViewModelDecorator.PlaySoundExampleCmd}" CommandParameter="{Binding Path=English}"/>
+                                        </DataTemplate>
+                                    </ListBox.ItemTemplate>
+                                    <ListBox.ItemsPanel>
+                                        <ItemsPanelTemplate>
+                                            <WrapPanel Orientation="Horizontal" />
+                                        </ItemsPanelTemplate>
+                                    </ListBox.ItemsPanel>
+                                </ListBox>
+                            </StackPanel>
+
+
+                            <ListBox ItemsSource="{Binding Path=RuProblems}" DisplayMemberPath="RussianProblem" Background="Transparent" DockPanel.Dock="Top"  Visibility="{Binding Path=VRuProblems}" ScrollViewer.HorizontalScrollBarVisibility="Disabled">
+                                <ListBox.Resources>
+                                    <Style TargetType="{x:Type ToolTip}">
+                                        <Setter Property="FontSize" Value="16"/>
+                                        <Setter Property="Foreground" Value="Black"/>
+                                    </Style>
+                                </ListBox.Resources>
+                                <ListBox.ItemContainerStyle>
+                                    <Style BasedOn="{StaticResource Disabled1}" TargetType="ListBoxItem">
+                                        <Setter Property="ToolTip">
+                                            <Setter.Value>
+                                                <MultiBinding Converter="{x:Static local:All.VisibleAndStringToString}">
+                                                    <Binding Path="DataContext.VAnswer" RelativeSource="{RelativeSource AncestorType=ListBox,Mode=FindAncestor}"/>
+                                                    <Binding Path="EnglishSolution"/>
+                                                </MultiBinding>
+                                            </Setter.Value>
+                                        </Setter>
+                                        <Setter Property="ToolTipService.InitialShowDelay" Value="2000"/>
+                                        <Setter Property="ToolTipService.ShowDuration" Value="100000"/>                                        
+                                    </Style>
+                                </ListBox.ItemContainerStyle>
+                            </ListBox>
+
+                            <StackPanel/>
+                        </DockPanel>
+
+
+
+                        <ListBox ItemsSource="{Binding Path=Examples}" HorizontalAlignment="Left" MinWidth="400" Visibility="{Binding Path=VEnExamples}" ItemContainerStyle="{StaticResource Disabled2}" IsHitTestVisible="False" DockPanel.Dock="Left" Grid.Column="1" ScrollViewer.HorizontalScrollBarVisibility="Disabled" ItemTemplate="{StaticResource HeaderedListBoxItemTemplate}"/>
+
+
+                        
+
+
+
+                        <StackPanel Grid.Column="3"/>
+
+                    </Grid>
+                    <DataTemplate.Triggers>
+                        <DataTrigger Binding="{Binding Path=VAnswer}" Value="Visible">
+                            <Setter TargetName="btnShowAnswer" Property="Content" Value=" &lt; " />
+                            <Setter TargetName="btnShowAnswer" Property="ToolTip" Value="Скрыть ответ" />
+                        </DataTrigger>
+                    </DataTemplate.Triggers>
+                </DataTemplate>
+
+                <DataTemplate x:Key="RuToEnFullTemplate">
+                    <Grid Margin="5,0,5,30" MaxWidth="{Binding Path=ActualWidth, RelativeSource={RelativeSource AncestorType=ListBox}, Converter={x:Static local:All.DGActualGeightCalc}, ConverterParameter=24}">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="*"/>
+                            <RowDefinition/>
+                        </Grid.RowDefinitions>
+                        <ContentControl IsHitTestVisible="False" Visibility="{Binding VAnswer}" DockPanel.Dock="Bottom" Grid.Row="1" Grid.ColumnSpan="5" Template="{StaticResource AnswerTemplate}"/>
+                        <DockPanel Grid.Column="0" MinWidth="210" >
+                            <Border Visibility="{Binding Path=VEnWord, Converter={x:Static local:All.TransparentToVisibility}}" Margin="0,0,4,0" BorderThickness="1" BorderBrush="AliceBlue" CornerRadius="4"  DockPanel.Dock="Top">
+                                <Border.InputBindings>
+                                    <MouseBinding Command="{x:Static local:WordPageViewModelDecorator.PlaySoundWordCmd}" CommandParameter="{Binding Path=Wp.WordInDictionary}" MouseAction="LeftClick" />
+                                </Border.InputBindings>
+                                <TextBlock Text="{Binding Path=Wp.WordInDictionary}" FontSize="18" MinWidth="100" Foreground="{Binding Path=VEnWord}" ToolTip="{Binding ToolTip}" ToolTipService.ShowDuration="100000">
+                                    <TextBlock.Resources>
+                                        <Style TargetType="{x:Type ToolTip}">
+                                            <Setter Property="FontSize" Value="16"/>
+                                            <Setter Property="Foreground" Value="Black"/>
+                                        </Style>
+                                    </TextBlock.Resources>
+                                    <TextBlock.InputBindings>
+                                        <MouseBinding Command="{x:Static local:WordPageViewModelDecorator.PlaySoundWordCmd}" CommandParameter="{Binding Path=Wp.WordInDictionary}" MouseAction="LeftClick" />
+                                    </TextBlock.InputBindings>
+                                </TextBlock>
+                            </Border>
+                            <ListBox ItemsSource="{Binding Path=ViewTranslated}" ItemContainerStyle="{StaticResource Disabled2}" BorderThickness="0" Background="Transparent" Visibility="{Binding Path=VTranslations}" DockPanel.Dock="Top">
+                                <ListBox.GroupStyle>
+                                    <GroupStyle>
+                                        <GroupStyle.HeaderTemplate>
+                                            <DataTemplate>
+                                                <TextBlock TextAlignment="Left" FontSize="10" Text="{Binding Name, Converter={x:Static local:All.PartToShortString}, StringFormat=\{0\}:}" Visibility="{Binding Name, Converter={x:Static local:All.NullObjectToVisibility}}"/>
+                                            </DataTemplate>
+                                        </GroupStyle.HeaderTemplate>
+                                    </GroupStyle>
+                                </ListBox.GroupStyle>
+                                <ListBox.ItemTemplate>
+                                    <DataTemplate>
+                                        <TextBlock MaxWidth="200" TextWrapping="WrapWithOverflow" Text="{Binding word, StringFormat=- \{0\}}"/>
+                                    </DataTemplate>
+                                </ListBox.ItemTemplate>
+                            </ListBox>
+                            <StackPanel Orientation="Horizontal" DockPanel.Dock="Bottom">
+                                <Button Content=" + " ToolTip="Больше примеров" Opacity="0.15" FontFamily="Courier New" IsEnabled="{Binding VAnswer, Converter={x:Static local:All.VisibilityToBool}, ConverterParameter=1}" Command="{Binding ShowHintCmd}">
+                                    <Button.Resources>
+                                        <Style TargetType="Border">
+                                            <Setter Property="CornerRadius" Value="4"/>
+                                        </Style>
+                                    </Button.Resources>
+                                </Button>
+                                <Button x:Name="btnShowAnswer" Content=" > "  ToolTip="Показать ответ" Opacity="0.15" FontFamily="Courier New" Command="{Binding ShowAnswerCmd}" CommandParameter="0">
+                                    <Button.Resources>
+                                        <Style TargetType="Border">
+                                            <Setter Property="CornerRadius" Value="4"/>
+                                        </Style>
+                                    </Button.Resources>
+                                    <Button.Tag>
+                                        <Thickness Left="5" Top="0" Right="5" Bottom="30" />
+                                    </Button.Tag>
+                                </Button>
+                                <Button Content=" ? "  ToolTip="Посмотреть подробности в словаре" Opacity="0.15" FontFamily="Courier New" Click="ButtonShowInDictionary_Click">
+                                    <Button.Resources>
+                                        <Style TargetType="Border">
+                                            <Setter Property="CornerRadius" Value="4"/>
+                                        </Style>
+                                    </Button.Resources>
+                                </Button>
+                            </StackPanel>
+                            <TextBlock Text="{Binding Path=Definition}" Visibility="{Binding Path=VDefinitions}" MaxWidth="600" TextWrapping="WrapWithOverflow"/>                            
+                        </DockPanel>
+                        <ListBox ItemsSource="{Binding Path=RuToEnProblems}" DisplayMemberPath="RussianProblem" HorizontalAlignment="Left" ItemContainerStyle="{StaticResource Disabled1}" IsHitTestVisible="False" Visibility="{Binding Path=VRuToEnProblems}" ScrollViewer.HorizontalScrollBarVisibility="Disabled" Grid.Column="1" />
+                        <ListBox ItemsSource="{Binding Path=RuToEnProblems}" DisplayMemberPath="EnglishProblem" HorizontalAlignment="Left" ItemContainerStyle="{StaticResource Disabled2}" IsHitTestVisible="False" Visibility="{Binding Path=VRuToEnProblemsHint}" ScrollViewer.HorizontalScrollBarVisibility="Disabled" Grid.Column="2" />
+                        <TextBlock Text="{Binding Path=Wp.Syn}" Foreground="DarkGreen" Visibility="{Binding Path=VSyn}" Grid.Column="2"/>
+                        
+
+
+
+                        <StackPanel Grid.Column="3"/>
+
+                    </Grid>
+                    <DataTemplate.Triggers>
+                        <DataTrigger Binding="{Binding Path=VAnswer}" Value="Visible">
+                            <Setter TargetName="btnShowAnswer" Property="Content" Value=" &lt; " />
+                            <Setter TargetName="btnShowAnswer" Property="ToolTip" Value="Скрыть ответ" />
+                        </DataTrigger>
+                    </DataTemplate.Triggers>
+                </DataTemplate>
+            </ListBox.Resources>
+
+        <ListBox.ItemTemplateSelector>
+                <local:RememberingViewModelTemplateSelector EnToRuFullTemplate="{StaticResource EnToRuFullTemplate}" RuToEnFullTemplate="{StaticResource RuToEnFullTemplate}"/>
+        </ListBox.ItemTemplateSelector>
+        <ListBox.ItemContainerStyle>
+            <Style TargetType="{x:Type ListBoxItem}" BasedOn="{StaticResource Disabled2}">
+                <Style.Triggers>
+                    <Trigger Property="ItemsControl.AlternationIndex" Value="1">
+                        <Setter Property="Background" Value="#F0F0DC"/>
+                    </Trigger>
+                </Style.Triggers>
+            </Style>
+        </ListBox.ItemContainerStyle>
+        </ListBox>
+
+
+    </Grid>
+</UserControl>
